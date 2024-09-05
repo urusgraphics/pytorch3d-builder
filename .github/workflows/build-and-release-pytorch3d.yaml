@@ -1,4 +1,4 @@
-name Buid and Release PyTorch3D
+name: Buid and Release PyTorch3D
 on:
   push:
     branches:
