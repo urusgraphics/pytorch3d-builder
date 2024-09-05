@@ -1,0 +1,54 @@
+name Buid and Release PyTorch3D
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'PyTorch3D version, e.g., 0.7.6'
+        required: false
+        default: '0.7.6'
+
+      cuda_version:
+        description: 'CUDA version, e.g., 11.6'
+        required: false
+        default: '11.6'
+
+run-name: Build and release PyTorch3D v${{ inputs.version }} with CUDA v${{ inputs.cuda_version }} by ${{ github.actor }}
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        config:
+          - runner: windows-latest
+    runs-on: ${{ matrix.config.runner }}
+    steps:
+
+      - name: Checkout PyTorch3D
+        uses: actions/checkout@v4
+        with:
+          repository: facebookresearch/pytorch3d
+          ref: v${{ inputs.version }}
+          fetch-depth: 1
+
+      - name: Checkout builder repository
+        uses: actions/checkout@v4
+        with:
+          path: pixi-builder
+
+      - name: Copy Pixi configuration and lock file
+        run : |
+          cp pixi-builder/pixi.yaml ./
+          cp pixi-builder/pixi.lock ./
+        working-directory: ${{ github.workspace }}
+
+      - name: Install Pixi
+        uses: prefix-dev/setup-pixi@v0.8.0
+        with:
+          pixi-version: v0.29.0
+          cache: true
+          # Enforce lockfile to ensure reproducibility or bail if the lock file
+          # is not up to date.
+          locked: true
+
+      - name: Build and package
+        run: pixi run python setup.py sdist bdist_wheel

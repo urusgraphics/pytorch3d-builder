@@ -1,0 +1,28 @@
+[project]
+authors = ["FAIR"]
+description = "PyTorch3D is FAIR's library of reusable components for deep Learning with 3D data."
+name = "pytorch3d"
+channels = ["pytorch", "nvidia", "iopath", "conda-forge"]
+platforms = ["win-64", "linux-64"]
+version = "0.7.6"
+
+[system-requirements]
+cuda = "11"
+
+[dependencies]
+python = ">=3.9, <3.10"
+pytorch = {version = "1.13.1", channel="pytorch"}
+torchvision = {version = "0.14.1", channel="pytorch"}
+pytorch-cuda = {version = ">=11.6, <11.7", channel="pytorch"}
+mkl = "2024.0.0"
+fvcore = "0.1.5.post20221221"
+numpy = {version=">=1.20.0, <2.0", channel="conda-forge"}
+
+[pypi-dependencies]
+fvcore = "*"
+iopath = "*"
+
+[build-dependencies]
+setuptools = "*"
+pip = "*"
+cuda = {version = ">=11.6.2, <11.7", channel="nvidia"}
