@@ -7,7 +7,7 @@ platforms = ["win-64", "linux-64"]
 version = "0.7.6"
 
 [system-requirements]
-cuda = "11"
+#cuda = "11"
 
 [dependencies]
 python = ">=3.9, <3.10"
