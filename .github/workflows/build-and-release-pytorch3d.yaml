@@ -19,7 +19,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: facebookresearch/pytorch3d
-          ref: v${{ inputs.version }}
+          ref: v0.7.6
           fetch-depth: 1
 
       - name: Checkout builder repository
