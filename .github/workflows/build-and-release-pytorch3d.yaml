@@ -1,18 +1,8 @@
 name Buid and Release PyTorch3D
 on:
   workflow_dispatch:
-    inputs:
-      version:
-        description: 'PyTorch3D version, e.g., 0.7.6'
-        required: false
-        default: '0.7.6'
 
-      cuda_version:
-        description: 'CUDA version, e.g., 11.6'
-        required: false
-        default: '11.6'
-
-run-name: Build and release PyTorch3D v${{ inputs.version }} with CUDA v${{ inputs.cuda_version }} by ${{ github.actor }}
+run-name: Build and release PyTorch3D by ${{ github.actor }}
 
 jobs:
   build:
