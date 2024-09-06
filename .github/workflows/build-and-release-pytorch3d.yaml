@@ -11,7 +11,8 @@ jobs:
     strategy:
       matrix:
         config:
-          - runner: windows-latest
+          - runner: windows-latest-l
+
     runs-on: ${{ matrix.config.runner }}
     steps:
 
@@ -25,12 +26,10 @@ jobs:
       - name: Checkout builder repository
         uses: actions/checkout@v4
         with:
-          path: pixi-builder
+          path: _builder
 
       - name: Copy Pixi configuration and lock file
-        run : |
-          cp pixi-builder/pixi.toml ./
-          cp pixi-builder/pixi.lock ./
+        run : cp _builder/pixi.toml _builder/pixi.lock ./
         working-directory: ${{ github.workspace }}
 
       - name: Install Pixi

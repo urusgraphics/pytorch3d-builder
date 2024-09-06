@@ -1,28 +1,35 @@
 [project]
+name = "pytorch3d"
+
 authors = ["FAIR"]
 description = "PyTorch3D is FAIR's library of reusable components for deep Learning with 3D data."
-name = "pytorch3d"
-channels = ["pytorch", "nvidia", "iopath", "conda-forge"]
-platforms = ["win-64", "linux-64"]
-version = "0.7.6"
 
-[system-requirements]
-#cuda = "11"
+# We put nvidia/label/* in front of nvidia so that strict channel priority
+# ensures cuda subcomponents of the same versions are picked up. We put
+# conda-forge in front of pytorch to pick up newer/better versions of
+# non-pytorch pacakages.
+channels = ["nvidia/label/cuda-11.6.2", "nvidia", "conda-forge", "pytorch", "iopath"]
+platforms = ["win-64", "linux-64"]
+
 
 [dependencies]
-python = ">=3.9, <3.10"
-pytorch = {version = "1.13.1", channel="pytorch"}
-torchvision = {version = "0.14.1", channel="pytorch"}
-pytorch-cuda = {version = ">=11.6, <11.7", channel="pytorch"}
+python = "3.9.*"
+pytorch = {version = "1.13.1.*", channel="pytorch"}
+torchvision = {version = "0.14.*", channel="pytorch"}
+pytorch-cuda = {version = "11.6.*", channel="pytorch"}
+
+# Version-specific fixups follow:
+
+# Newer version breaks compatibility with this pytorch release
 mkl = "2024.0.0"
-fvcore = "0.1.5.post20221221"
-numpy = {version=">=1.20.0, <2.0", channel="conda-forge"}
+
+# Prebuilt pytorch is linked against numpy 1.* ABI
+numpy = {version="<2.0", channel="conda-forge"}
 
 [pypi-dependencies]
-fvcore = "*"
 iopath = "*"
 
 [build-dependencies]
 setuptools = "*"
 pip = "*"
-cuda = {version = ">=11.6.2, <11.7", channel="nvidia"}
+cuda-toolkit = {version = "11.6.2", channel="nvidia/label/cuda-11.6.2"}
