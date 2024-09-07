@@ -1,8 +1,8 @@
 name: Buid and Release PyTorch3D
 on:
-  push:
+  pull_request:
     branches:
-      - build-win-wheel
+      - '**'
 
 run-name: Build and release PyTorch3D by ${{ github.actor }}
 
