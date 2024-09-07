@@ -53,5 +53,5 @@ jobs:
           GITHUB_TOKEN: ${{ github.TOKEN }}
         # skip pytorch3d-0.7.6-cp39-cp39-win_amd64.whl for now
         run: |
-          gh release upload v0.7.6 pytorch3d-0.7.6.tar.gz
+          gh release upload v0.7.6 pytorch3d-0.7.6.tar.gz --repo urusgraphics/pytorch3d-builder
 
