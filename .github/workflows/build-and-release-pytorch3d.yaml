@@ -34,30 +34,37 @@ jobs:
         run : |
           cp _builder/pixi.toml _builder/pixi.lock ./
 
-      - name: Uninstall MSVC Compiler of the latest version
+      # - name: Uninstall MSVC Compiler of the latest version
+      #   run: |
+      #     Set-Location "C:\Program Files (x86)\Microsoft Visual Studio\Installer\"
+      #     $InstallPath = "C:\Program Files\Microsoft Visual Studio\2022\Enterprise"
+      #     $componentsToRemove= @(
+      #         "Microsoft.VisualStudio.Component.VC.Tools.x86.x64"
+      #     )
+      #     [string]$workloadArgs = $componentsToRemove | ForEach-Object {" --remove " +  $_}
+      #     $Arguments = ('/c', "vs_installer.exe", 'modify', '--installPath', "`"$InstallPath`"",$workloadArgs, '--quiet', '--norestart', '--nocache')
+      #     # should be run twice
+      #     $process = Start-Process -FilePath cmd.exe -ArgumentList $Arguments -Wait -PassThru -WindowStyle Hidden
+      #     $process = Start-Process -FilePath cmd.exe -ArgumentList $Arguments -Wait -PassThru -WindowStyle Hidden
+
+      # CUDA Compiler puts restriction on the MSVC version, so we cannot use
+      # the latest version installed by default on the runner.
+      #
+      # For components version number see here:
+      # https://learn.microsoft.com/en-us/visualstudio/install/workload-component-id-vs-build-tools?view=vs-2022
+      - name: Install MSVC Compiler v14.39 (Visual Studio 2022 v17.9)
         run: |
           Set-Location "C:\Program Files (x86)\Microsoft Visual Studio\Installer\"
           $InstallPath = "C:\Program Files\Microsoft Visual Studio\2022\Enterprise"
           $componentsToRemove= @(
               "Microsoft.VisualStudio.Component.VC.Tools.x86.x64"
           )
-          [string]$workloadArgs = $componentsToRemove | ForEach-Object {" --remove " +  $_}
-          $Arguments = ('/c', "vs_installer.exe", 'modify', '--installPath', "`"$InstallPath`"",$workloadArgs, '--quiet', '--norestart', '--nocache')
-          # should be run twice
-          $process = Start-Process -FilePath cmd.exe -ArgumentList $Arguments -Wait -PassThru -WindowStyle Hidden
-          $process = Start-Process -FilePath cmd.exe -ArgumentList $Arguments -Wait -PassThru -WindowStyle Hidden
-
-      - name: Install MSVC Compiler Tools of fixed version
-        run: |
-          # For versions update see here: https://learn.microsoft.com/en-us/visualstudio/install/workload-component-id-vs-build-tools?view=vs-2022
-          Set-Location "C:\Program Files (x86)\Microsoft Visual Studio\Installer\"
-          $InstallPath = "C:\Program Files\Microsoft Visual Studio\2022\Enterprise"
           $componentsToInstall= @(
               "Microsoft.VisualStudio.Component.VC.14.39.17.9.x86.x64"
-              "Microsoft.VisualStudio.Component.VC.14.39.17.9.ATL"
           )
-          [string]$workloadArgs = $componentsToInstall | ForEach-Object {" --add " +  $_}
-          $Arguments = ('/c', "vs_installer.exe", 'modify', '--installPath', "`"$InstallPath`"",$workloadArgs, '--quiet', '--norestart', '--nocache')
+          [string]$removeArgs = $componentsToRemove | ForEach-Object {" --remove " +  $_}
+          [string]$addArgs = $componentsToInstall | ForEach-Object {" --add " +  $_}
+          $Arguments = ('/c', "vs_installer.exe", 'modify', '--installPath', "`"$InstallPath`"", $removeArgs, $addArgs, '--quiet', '--norestart', '--nocache')
           # should be run twice
           $process = Start-Process -FilePath cmd.exe -ArgumentList $Arguments -Wait -PassThru -WindowStyle Hidden
           $process = Start-Process -FilePath cmd.exe -ArgumentList $Arguments -Wait -PassThru -WindowStyle Hidden
@@ -80,10 +87,11 @@ jobs:
         env:
           # Without this flag, pytorch3d setup.py will determine whether to
           # build with CUDA support or not based on host system's
-          # pytorch.cuda.is_available().
+          # pytorch.cuda.is_available(), which would be False on CI runners
+          # without CUDA hardware.
           FORCE_CUDA: 1
           # When building on host system without actual GPU, we need to specify
-          # the following. See this post:
+          # the CUDA architectures to support. See this post:
           # https://github.com/pytorch/extension-cpp/issues/71#issuecomment-1183674660
           # Note that the supported archs also depend on the CUDA toolkit
           # version.
