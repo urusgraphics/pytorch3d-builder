@@ -29,8 +29,10 @@ jobs:
           path: _builder
 
       - name: Copy Pixi configuration and lock file
-        run : cp _builder/pixi.toml _builder/pixi.lock ./
+        shell: bash
         working-directory: ${{ github.workspace }}
+        run : |
+          cp _builder/pixi.toml _builder/pixi.lock ./
 
       - name: Install Pixi
         uses: prefix-dev/setup-pixi@v0.8.0
