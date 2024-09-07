@@ -53,6 +53,12 @@ jobs:
           # build with CUDA support or not based on host system's
           # pytorch.cuda.is_available().
           FORCE_CUDA: 1
+          # When building on host system without actual GPU, we need to specify
+          # the following. See this post:
+          # https://github.com/pytorch/extension-cpp/issues/71#issuecomment-1183674660
+          # Note that the supported archs also depend on the CUDA toolkit
+          # version.
+          TORCH_CUDA_ARCH_LIST: "6.0;6.1;7.0;7.5;8.0;8.6+PTX"
         run: pixi run python setup.py sdist bdist_wheel
 
       - name: Upload as GitHub release
