@@ -33,3 +33,24 @@ iopath = "*"
 setuptools = "*"
 pip = "*"
 cuda-toolkit = {version = "11.6.2", channel="nvidia/label/cuda-11.6.2"}
+
+[tasks.build-wheels]
+cmd = "python setup.py sdist bdist_wheel"
+
+[tasks.build-wheels.env]
+
+# Without this flag, pytorch3d setup.py will determine whether to build with
+# CUDA support or not based on host system's pytorch.cuda.is_available(), which
+# would be False on CI runners without CUDA hardware.
+FORCE_CUDA = "1"
+
+# When building on host system without actual GPU, we need to specify the CUDA
+# architectures to support. See this post:
+# https://github.com/pytorch/extension-cpp/issues/71#issuecomment-1183674660
+#
+# Note that the supported archs also depend on the CUDA toolkit version, and
+# the longer the list, the longer the build time.
+#
+# If you are building only locally on a machine with a GPU, you can comment out
+# this line. Though the resulting package will only support your GPU's arch.
+TORCH_CUDA_ARCH_LIST = "6.0;6.1;7.0;7.5;8.0;8.6+PTX"

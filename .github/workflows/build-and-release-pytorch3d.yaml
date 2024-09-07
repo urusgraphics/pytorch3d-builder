@@ -34,24 +34,19 @@ jobs:
         run : |
           cp _builder/pixi.toml _builder/pixi.lock ./
 
-      # - name: Uninstall MSVC Compiler of the latest version
-      #   run: |
-      #     Set-Location "C:\Program Files (x86)\Microsoft Visual Studio\Installer\"
-      #     $InstallPath = "C:\Program Files\Microsoft Visual Studio\2022\Enterprise"
-      #     $componentsToRemove= @(
-      #         "Microsoft.VisualStudio.Component.VC.Tools.x86.x64"
-      #     )
-      #     [string]$workloadArgs = $componentsToRemove | ForEach-Object {" --remove " +  $_}
-      #     $Arguments = ('/c', "vs_installer.exe", 'modify', '--installPath', "`"$InstallPath`"",$workloadArgs, '--quiet', '--norestart', '--nocache')
-      #     # should be run twice
-      #     $process = Start-Process -FilePath cmd.exe -ArgumentList $Arguments -Wait -PassThru -WindowStyle Hidden
-      #     $process = Start-Process -FilePath cmd.exe -ArgumentList $Arguments -Wait -PassThru -WindowStyle Hidden
-
       # CUDA Compiler puts restriction on the MSVC version, so we cannot use
       # the latest version installed by default on the runner.
       #
+      # Here is the list of VS components installed by default on the runner:
+      # https://github.com/actions/runner-images/blob/main/images/windows/Windows2022-Readme.md
+      #
       # For components version number see here:
       # https://learn.microsoft.com/en-us/visualstudio/install/workload-component-id-vs-build-tools?view=vs-2022
+      #
+      # To get the msvc version that cuda is compatible with, check the CUDA
+      # documentation and/or the host_config.h that comes with CUDA. It will be
+      # available at .pixi\envs\default\include\crt\host_config.h once pixi
+      # environment is installed.
       - name: Install MSVC Compiler v14.39 (Visual Studio 2022 v17.9)
         run: |
           Set-Location "C:\Program Files (x86)\Microsoft Visual Studio\Installer\"
@@ -84,28 +79,16 @@ jobs:
           locked: true
 
       - name: Build and package PyTorch3D
-        env:
-          # Without this flag, pytorch3d setup.py will determine whether to
-          # build with CUDA support or not based on host system's
-          # pytorch.cuda.is_available(), which would be False on CI runners
-          # without CUDA hardware.
-          FORCE_CUDA: 1
-          # When building on host system without actual GPU, we need to specify
-          # the CUDA architectures to support. See this post:
-          # https://github.com/pytorch/extension-cpp/issues/71#issuecomment-1183674660
-          # Note that the supported archs also depend on the CUDA toolkit
-          # version.
-          TORCH_CUDA_ARCH_LIST: "6.0;6.1;7.0;7.5;8.0;8.6+PTX"
-        run: pixi run python setup.py sdist bdist_wheel
+        run: pixi run build-wheels
 
       - name: Upload as GitHub release
         working-directory: ${{ github.workspace }}/_builder
         shell: bash
         # skip  for now
         run: |
-          gh release create v0.7.6 --title "PyTorch3D v0.7.6" --notes "Prebuilt wheels for PyTorch3D v0.7.6"
-          gh release upload v0.7.6 ../dist/pytorch3d-0.7.6.tar.gz
-          gh release upload v0.7.6 ../dist/pytorch3d-0.7.6-cp39-cp39-win_amd64.whl
+          gh release create v0.7.6 --title "PyTorch3D v0.7.6" --notes "Prebuilt wheels for PyTorch3D v0.7.6" --clobber
+          gh release upload v0.7.6 ../dist/pytorch3d-0.7.6.tar.gz --clobber
+          gh release upload v0.7.6 ../dist/pytorch3d-0.7.6-cp39-cp39-win_amd64.whl --clobber
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
