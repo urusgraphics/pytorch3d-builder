@@ -34,7 +34,7 @@ jobs:
         run : |
           cp _builder/pixi.toml _builder/pixi.lock ./
 
-      # Ninja help swith parallel compilation
+      # Ninja allow parallel compilation
       - name: Install Ninja
         run: choco install ninja -y
 
@@ -48,6 +48,11 @@ jobs:
           locked: true
 
       - name: Build and package PyTorch3D
+        env:
+          # Without this flag, pytorch3d setup.py will determine whether to
+          # build with CUDA support or not based on host system's
+          # pytorch.cuda.is_available().
+          FORCE_CUDA: 1
         run: pixi run python setup.py sdist bdist_wheel
 
       - name: Upload as GitHub release
