@@ -46,13 +46,15 @@ jobs:
       - name: Build and package PyTorch3D
         run: pixi run python setup.py sdist #bdist_wheel
 
+      #          gh release upload v0.7.6 ../dist/pytorch3d-0.7.6-cp39-cp39-win_amd64.whl --repo urusgraphics/pytorch3d-builder --clobber
+
       - name: Upload as GitHub release
-        working-directory: ${{ github.workspace }}/dist
+        working-directory: ${{ github.workspace }}/_builder
         shell: bash
-        # skip pytorch3d-0.7.6-cp39-cp39-win_amd64.whl for now
+        # skip  for now
         run: |
           gh release create v0.7.6 --repo urusgraphics/pytorch3d-builder --title "PyTorch3D v0.7.6" --notes "Prebuilt wheels for PyTorch3D v0.7.6"
-          gh release upload v0.7.6 pytorch3d-0.7.6.tar.gz --repo urusgraphics/pytorch3d-builder --clobber
+          gh release upload v0.7.6 ../dist/pytorch3d-0.7.6.tar.gz --repo urusgraphics/pytorch3d-builder --clobber
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
