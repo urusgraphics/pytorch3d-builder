@@ -18,8 +18,9 @@ jobs:
       matrix:
         config:
           - runner: windows-latest-l
+    runs-on: ${{ matrix.config.runner }}
 
-
+    steps:
       - name: Checkout PyTorch3D
         uses: actions/checkout@v4
         with:
