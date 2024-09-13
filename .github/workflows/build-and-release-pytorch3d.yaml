@@ -5,7 +5,8 @@ on:
       - '**'
   push:
     tags:
-      - 'v**'
+      # Run on version tag push like v0.7.6 and v0.7.6-1-py39-cuda116-torch113
+      - 'v*.*.**'
 
 env:
   PT3_VER: 0.7.6
@@ -93,18 +94,13 @@ jobs:
         working-directory: ${{ github.workspace }}/_builder
         shell: bash
         run: |
-
-      - name: Extract Release name from tag or branch
-        id: extract_release_name
-        shell: bash
-        run: |
           if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
             RELEASE="${GITHUB_REF#refs/tags/}"
+            echo "Creating release: $RELEASE"
           else
-            echo "Not tag, so skip creating release.""
+            echo "Not tag, so skip creating release."
             exit 0
           fi
-          echo "Release name: $RELEASE"
           gh release create "$RELEASE" -t "PyTorch3D v$PT3_VER" -n "Prebuilt wheels for PyTorch3D v$PT3_VER"
           cd ../dist
           gh release upload "$RELEASE" pytorch3d-$PT3_VER.tar.gz --clobber
