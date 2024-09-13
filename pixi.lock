@@ -286,9 +286,9 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/tzdata-2024a-h8827d51_1.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/ucrt-10.0.22621.0-h57928b3_0.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/noarch/urllib3-2.2.2-pyhd8ed1ab_1.conda
-      - conda: https://conda.anaconda.org/conda-forge/win-64/vc-14.3-h8a93ad2_20.conda
-      - conda: https://conda.anaconda.org/conda-forge/win-64/vc14_runtime-14.40.33810-hcc2c482_20.conda
-      - conda: https://conda.anaconda.org/conda-forge/win-64/vs2015_runtime-14.40.33810-h3bf8584_20.conda
+      - conda: https://conda.anaconda.org/conda-forge/win-64/vc-14.3-h8a93ad2_21.conda
+      - conda: https://conda.anaconda.org/conda-forge/win-64/vc14_runtime-14.40.33810-ha82c5b3_21.conda
+      - conda: https://conda.anaconda.org/conda-forge/win-64/vs2015_runtime-14.40.33810-h3bf8584_21.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/wheel-0.44.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/win_inet_pton-1.1.0-pyhd8ed1ab_6.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/win-64/xorg-libxau-1.0.11-hcd874cb_0.conda
@@ -548,6 +548,7 @@ packages:
   - python >=3.9,<3.10.0a0
   - python_abi 3.9.* *_cp39
   license: MIT
+  license_family: MIT
   purls:
   - pkg:pypi/cffi?source=hash-mapping
   size: 241610
@@ -568,6 +569,7 @@ packages:
   - vc >=14.2,<15
   - vc14_runtime >=14.29.30139
   license: MIT
+  license_family: MIT
   purls:
   - pkg:pypi/cffi?source=hash-mapping
   size: 236935
@@ -4065,6 +4067,7 @@ packages:
   - libhwloc >=2.11.1,<2.11.2.0a0
   - libstdcxx >=13
   license: Apache-2.0
+  license_family: APACHE
   purls: []
   size: 175779
   timestamp: 1725532539822
@@ -4082,6 +4085,7 @@ packages:
   - vc >=14.2,<15
   - vc14_runtime >=14.29.30139
   license: Apache-2.0
+  license_family: APACHE
   purls: []
   size: 151494
   timestamp: 1725532984828
@@ -4257,12 +4261,12 @@ packages:
 - kind: conda
   name: vc
   version: '14.3'
-  build: h8a93ad2_20
-  build_number: 20
+  build: h8a93ad2_21
+  build_number: 21
   subdir: win-64
-  url: https://conda.anaconda.org/conda-forge/win-64/vc-14.3-h8a93ad2_20.conda
-  sha256: 23ac5feb15a9adf3ab2b8c4dcd63650f8b7ae860c5ceb073e49cf71d203eddef
-  md5: 8558f367e1d7700554f7cdb823c46faf
+  url: https://conda.anaconda.org/conda-forge/win-64/vc-14.3-h8a93ad2_21.conda
+  sha256: f14f5238c2e2516e292af43d91df88f212d769b4853eb46d03291793dcf00da9
+  md5: e632a9b865d4b653aa656c9fb4f4817c
   depends:
   - vc14_runtime >=14.40.33810
   track_features:
@@ -4270,42 +4274,42 @@ packages:
   license: BSD-3-Clause
   license_family: BSD
   purls: []
-  size: 17391
-  timestamp: 1717709040616
+  size: 17243
+  timestamp: 1725984095174
 - kind: conda
   name: vc14_runtime
   version: 14.40.33810
-  build: hcc2c482_20
-  build_number: 20
+  build: ha82c5b3_21
+  build_number: 21
   subdir: win-64
-  url: https://conda.anaconda.org/conda-forge/win-64/vc14_runtime-14.40.33810-hcc2c482_20.conda
-  sha256: bba8daa6f78b26b48fb7e1377eb52160e25495710bf53146c5f405bd50565982
-  md5: ad33c7cd933d69b9dee0f48317cdf137
+  url: https://conda.anaconda.org/conda-forge/win-64/vc14_runtime-14.40.33810-ha82c5b3_21.conda
+  sha256: c3bf51bff7db39ad7e890dbef1b1026df0af36975aea24dea7c5fe1e0b382c40
+  md5: b3ebb670caf046e32b835fbda056c4f9
   depends:
   - ucrt >=10.0.20348.0
   constrains:
-  - vs2015_runtime 14.40.33810.* *_20
+  - vs2015_runtime 14.40.33810.* *_21
   license: LicenseRef-ProprietaryMicrosoft
   license_family: Proprietary
   purls: []
-  size: 751028
-  timestamp: 1724712684919
+  size: 751757
+  timestamp: 1725984166774
 - kind: conda
   name: vs2015_runtime
   version: 14.40.33810
-  build: h3bf8584_20
-  build_number: 20
+  build: h3bf8584_21
+  build_number: 21
   subdir: win-64
-  url: https://conda.anaconda.org/conda-forge/win-64/vs2015_runtime-14.40.33810-h3bf8584_20.conda
-  sha256: 0c2803f7a788c51f28235a7228dc2ab3f107b4b16ab0845a3e595c8c51e50a7a
-  md5: c21f1b4a3a30bbc3ef35a50957578e0e
+  url: https://conda.anaconda.org/conda-forge/win-64/vs2015_runtime-14.40.33810-h3bf8584_21.conda
+  sha256: 472410455c381e406ec8c1d3e0342b48ee23122ef7ffb22a09d9763ca5df4d20
+  md5: b3f37db7b7ae1c22600fa26a63ed99b3
   depends:
   - vc14_runtime >=14.40.33810
   license: BSD-3-Clause
   license_family: BSD
   purls: []
-  size: 17395
-  timestamp: 1717709043353
+  size: 17241
+  timestamp: 1725984096440
 - kind: conda
   name: wheel
   version: 0.44.0

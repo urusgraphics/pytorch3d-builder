@@ -3,6 +3,12 @@ on:
   pull_request:
     branches:
       - '**'
+  push:
+    tags:
+      - 'v**'
+
+env:
+  PT3_VER: 0.7.6
 
 run-name: Build and release PyTorch3D by ${{ github.actor }}
 
@@ -13,14 +19,12 @@ jobs:
         config:
           - runner: windows-latest-l
 
-    runs-on: ${{ matrix.config.runner }}
-    steps:
 
       - name: Checkout PyTorch3D
         uses: actions/checkout@v4
         with:
           repository: facebookresearch/pytorch3d
-          ref: v0.7.6
+          ref: v$PT3_VER
           fetch-depth: 1
 
       - name: Checkout builder repository
@@ -79,16 +83,31 @@ jobs:
           locked: true
 
       - name: Build and package PyTorch3D
-        run: pixi run build-wheels
+        shell: bash
+        run: |
+          pixi run build-wheels
+          ls dist
 
-      - name: Upload as GitHub release
+      - name: For tags, create a GitHub release and upload the wheels
         working-directory: ${{ github.workspace }}/_builder
         shell: bash
-        # skip  for now
         run: |
-          gh release create v0.7.6 --title "PyTorch3D v0.7.6" --notes "Prebuilt wheels for PyTorch3D v0.7.6" --clobber
-          gh release upload v0.7.6 ../dist/pytorch3d-0.7.6.tar.gz --clobber
-          gh release upload v0.7.6 ../dist/pytorch3d-0.7.6-cp39-cp39-win_amd64.whl --clobber
+
+      - name: Extract Release name from tag or branch
+        id: extract_release_name
+        shell: bash
+        run: |
+          if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
+            RELEASE="${GITHUB_REF#refs/tags/}"
+          else
+            echo "Not tag, so skip creating release.""
+            exit 0
+          fi
+          echo "Release name: $RELEASE"
+          gh release create "$RELEASE" -t "PyTorch3D v$PT3_VER" -n "Prebuilt wheels for PyTorch3D v$PT3_VER"
+          cd ../dist
+          gh release upload "$RELEASE" pytorch3d-$PT3_VER.tar.gz --clobber
+          gh release upload "$RELEASE" pytorch3d-$PT3_VER-cp39-cp39-win_amd64.whl --clobber
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
