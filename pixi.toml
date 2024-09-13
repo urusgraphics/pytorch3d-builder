@@ -1,0 +1,60 @@
+[project]
+name = "pytorch3d"
+
+authors = ["FAIR"]
+description = "PyTorch3D is FAIR's library of reusable components for deep Learning with 3D data."
+
+# We put nvidia/label/* in front of nvidia so that strict channel priority
+# ensures cuda subcomponents of the same versions are picked up. We put
+# conda-forge in front of pytorch to pick up newer/better versions of
+# non-pytorch pacakages.
+channels = ["nvidia/label/cuda-11.6.2", "nvidia", "conda-forge", "pytorch", "iopath"]
+platforms = ["win-64", "linux-64"]
+
+
+[dependencies]
+python = "3.9.*"
+pytorch = {version = "1.13.1.*", channel="pytorch"}
+torchvision = {version = "0.14.*", channel="pytorch"}
+pytorch-cuda = {version = "11.6.*", channel="pytorch"}
+
+# Version-specific fixups follow:
+
+# Newer version breaks compatibility with this pytorch release
+mkl = "2024.0.0"
+
+# Prebuilt pytorch is linked against numpy 1.* ABI
+numpy = {version="<2.0", channel="conda-forge"}
+
+[pypi-dependencies]
+iopath = "*"
+
+[build-dependencies]
+setuptools = "*"
+pip = "*"
+
+# This pulls in the CUDA toolkit, so the host system does not need to have
+# preinstalled CUDA.
+cuda-toolkit = {version = "11.6.2", channel="nvidia/label/cuda-11.6.2"}
+
+[tasks.build-wheels]
+cmd = "python setup.py sdist bdist_wheel"
+
+[tasks.build-wheels.env]
+
+# This flag tells pytorch3d setup.py to always build with CUDA support, instead
+# of making that decision based on the host system's CUDA availability using
+# pytorch.cuda.is_available(), which would be False on CI runners without GPU
+# or CUDA drives.
+FORCE_CUDA = "1"
+
+# When building on host system without actual GPU, we need to specify the CUDA
+# architectures to support. See this post:
+# https://github.com/pytorch/extension-cpp/issues/71#issuecomment-1183674660
+#
+# Note that the supported archs also depend on the CUDA toolkit version, and
+# the longer the list, the longer the build time.
+#
+# If you are building only locally on a machine with a GPU, you can comment out
+# this line. Though the resulting package will only support your GPU's arch.
+TORCH_CUDA_ARCH_LIST = "6.0;6.1;7.0;7.5;8.0;8.6+PTX"

@@ -1,0 +1,109 @@
+name: Buid and Release PyTorch3D
+on:
+  push:
+    tags:
+      # To trigger action, push a tag such as below:
+      #  v0.7.6
+      #  v0.7.6-1-py39-cuda116-torch113
+      #  v0.7.6-test
+      - 'v*.*.**'
+
+env:
+  PT3_VER: 0.7.6
+
+run-name: Build and release PyTorch3D by ${{ github.actor }}
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        config:
+          - runner: windows-latest-l
+    runs-on: ${{ matrix.config.runner }}
+
+    steps:
+      - name: Checkout PyTorch3D
+        uses: actions/checkout@v4
+        with:
+          repository: facebookresearch/pytorch3d
+          ref: v${{ env.PT3_VER }}
+          fetch-depth: 1
+
+      - name: Checkout builder repository
+        uses: actions/checkout@v4
+        with:
+          path: _builder
+
+      - name: Copy Pixi configuration and lock file
+        shell: bash
+        working-directory: ${{ github.workspace }}
+        run : |
+          cp _builder/pixi.toml _builder/pixi.lock ./
+
+      # CUDA Compiler puts restriction on the MSVC version, so we cannot use
+      # the latest version installed by default on the runner.
+      #
+      # Here is the list of VS components installed by default on the runner:
+      # https://github.com/actions/runner-images/blob/main/images/windows/Windows2022-Readme.md
+      #
+      # For components version number see here:
+      # https://learn.microsoft.com/en-us/visualstudio/install/workload-component-id-vs-build-tools?view=vs-2022
+      #
+      # To get the msvc version that cuda is compatible with, check the CUDA
+      # documentation and/or the host_config.h that comes with CUDA. It will be
+      # available at .pixi\envs\default\include\crt\host_config.h once pixi
+      # environment is installed.
+      - name: Install MSVC Compiler v14.39 (Visual Studio 2022 v17.9)
+        run: |
+          Set-Location "C:\Program Files (x86)\Microsoft Visual Studio\Installer\"
+          $InstallPath = "C:\Program Files\Microsoft Visual Studio\2022\Enterprise"
+          $componentsToRemove= @(
+              "Microsoft.VisualStudio.Component.VC.Tools.x86.x64"
+          )
+          $componentsToInstall= @(
+              "Microsoft.VisualStudio.Component.VC.14.39.17.9.x86.x64"
+          )
+          [string]$removeArgs = $componentsToRemove | ForEach-Object {" --remove " +  $_}
+          [string]$addArgs = $componentsToInstall | ForEach-Object {" --add " +  $_}
+          $Arguments = ('/c', "vs_installer.exe", 'modify', '--installPath', "`"$InstallPath`"", $removeArgs, $addArgs, '--quiet', '--norestart', '--nocache')
+          # should be run twice
+          $process = Start-Process -FilePath cmd.exe -ArgumentList $Arguments -Wait -PassThru -WindowStyle Hidden
+          $process = Start-Process -FilePath cmd.exe -ArgumentList $Arguments -Wait -PassThru -WindowStyle Hidden
+        shell: powershell
+
+      # Ninja allow parallel compilation
+      - name: Install Ninja
+        run: choco install ninja -y
+
+      - name: Install Pixi and PyTorch3D dependencies
+        uses: prefix-dev/setup-pixi@v0.8.0
+        with:
+          pixi-version: v0.29.0
+          cache: true
+          # Enforce lockfile to ensure reproducibility or bail if the lock file
+          # is not up to date.
+          locked: true
+
+      - name: Build and package PyTorch3D
+        shell: bash
+        run: |
+          pixi run build-wheels
+
+      - name: For tags, create a GitHub release and upload the wheels
+        working-directory: ${{ github.workspace }}/_builder
+        shell: bash
+        run: |
+          Echo "Files in dist:"
+          ls ../dist
+
+          if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
+            RELEASE="${GITHUB_REF#refs/tags/}"
+            echo "Creating release: $RELEASE"
+            gh release create "$RELEASE" --draft -t "PyTorch3D v$PT3_VER (tag: $RELEASE)" -n "Prebuilt wheels for PyTorch3D v$PT3_VER (tag: $RELEASE)"
+            gh release upload "$RELEASE" ../dist/* --clobber
+          else
+            echo "Not tag, so skip creating release."
+            fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
