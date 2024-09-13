@@ -57,5 +57,4 @@ FORCE_CUDA = "1"
 #
 # If you are building only locally on a machine with a GPU, you can comment out
 # this line. Though the resulting package will only support your GPU's arch.
-#TORCH_CUDA_ARCH_LIST = "6.0;6.1;7.0;7.5;8.0;8.6+PTX"
-TORCH_CUDA_ARCH_LIST = "7.0+PTX" #1 arch to makes build faster
+TORCH_CUDA_ARCH_LIST = "6.0;6.1;7.0;7.5;8.0;8.6+PTX"

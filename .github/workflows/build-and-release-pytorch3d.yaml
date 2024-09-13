@@ -1,11 +1,11 @@
 name: Buid and Release PyTorch3D
 on:
-  pull_request:
-    branches:
-      - '**'
   push:
     tags:
-      # Run on version tag push like v0.7.6 and v0.7.6-1-py39-cuda116-torch113
+      # To trigger action, push a tag such as below:
+      #  v0.7.6
+      #  v0.7.6-1-py39-cuda116-torch113
+      #  v0.7.6-test
       - 'v*.*.**'
 
 env:
@@ -88,12 +88,14 @@ jobs:
         shell: bash
         run: |
           pixi run build-wheels
-          ls dist
 
       - name: For tags, create a GitHub release and upload the wheels
         working-directory: ${{ github.workspace }}/_builder
         shell: bash
         run: |
+          Echo "Files in dist:"
+          ls dist
+
           if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
             RELEASE="${GITHUB_REF#refs/tags/}"
             echo "Creating release: $RELEASE"
