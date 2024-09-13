@@ -94,19 +94,16 @@ jobs:
         shell: bash
         run: |
           Echo "Files in dist:"
-          ls dist
+          ls ../dist
 
           if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
             RELEASE="${GITHUB_REF#refs/tags/}"
             echo "Creating release: $RELEASE"
+            gh release create "$RELEASE" --draft -t "PyTorch3D v$PT3_VER (tag: $RELEASE)" -n "Prebuilt wheels for PyTorch3D v$PT3_VER (tag: $RELEASE)"
+            gh release upload "$RELEASE" ../dist/* --clobber
           else
             echo "Not tag, so skip creating release."
-            exit 0
-          fi
-          gh release create "$RELEASE" -t "PyTorch3D v$PT3_VER" -n "Prebuilt wheels for PyTorch3D v$PT3_VER"
-          cd ../dist
-          gh release upload "$RELEASE" pytorch3d-$PT3_VER.tar.gz --clobber
-          gh release upload "$RELEASE" pytorch3d-$PT3_VER-cp39-cp39-win_amd64.whl --clobber
+            fi
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
