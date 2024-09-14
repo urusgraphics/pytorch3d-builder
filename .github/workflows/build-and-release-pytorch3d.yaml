@@ -99,7 +99,7 @@ jobs:
           if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
             RELEASE="${GITHUB_REF#refs/tags/}"
             echo "Creating release: $RELEASE"
-            gh release create "$RELEASE" --draft -t "PyTorch3D v$PT3_VER (tag: $RELEASE)" -n "Prebuilt wheels for PyTorch3D v$PT3_VER (tag: $RELEASE)"
+            gh release create "$RELEASE" --draft -t "PyTorch3D v$PT3_VER ($RELEASE)" -n "Prebuilt wheels for PyTorch3D v$PT3_VER ($RELEASE)"
             gh release upload "$RELEASE" ../dist/* --clobber
           else
             echo "Not tag, so skip creating release."
